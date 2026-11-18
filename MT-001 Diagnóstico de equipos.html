@@ -1,0 +1,500 @@
+<!doctype html><html lang="es"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><title>MT-001 Diagnóstico de equipos</title><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<style>
+/* Layout: panel de historial arriba, guía plegable, ficha MT-001 en 10 secciones y un informe que se arma solo al final. */
+
+:root{--bg:#eef1f5;--card:#fff;--fg:#1f2937;--mu:#6b7280;--ln:#d1d5db;--ac:#0f4c81;--in:#fff;--hd:#f3f6fa;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#162033;--fg:#e5e7eb;--mu:#9ca3af;--ln:#334155;--ac:#4f9cf0;--in:#0f172a;--hd:#1c2940;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1220;--card:#162033;--fg:#e5e7eb;--mu:#9ca3af;--ln:#334155;--ac:#4f9cf0;--in:#0f172a;--hd:#1c2940;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.top{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--ln);border-top:5px solid #0f4c81;border-radius:12px;padding:14px 18px;margin-bottom:12px}
+.logo{width:84px;height:auto;flex:none}
+.brand{font-size:13px;letter-spacing:2px;color:var(--ac)}.brand b{font-size:20px;letter-spacing:3px}
+h1{font-size:17px;margin:2px 0 4px;text-transform:uppercase}
+.meta{margin:0;color:var(--mu);font-size:12px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:14px 18px;margin-bottom:12px}
+h2{margin:0 0 8px;font-size:15px;color:var(--ac);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+h2 i{font-style:normal;background:var(--ac);color:#fff;border-radius:50%;min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+h3{margin:14px 0 6px;font-size:13px;color:var(--ac)}
+.obj{margin:0 0 10px;color:var(--mu);font-size:12px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 12px}
+.fld{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mu);font-weight:600}
+.fld.w{grid-column:1/-1}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--in);border:1px solid var(--ln);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:0}
+textarea{resize:vertical}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--hd);color:var(--ac);text-align:left;font-size:12px;padding:6px 8px;border-bottom:2px solid var(--ln)}
+td{padding:4px 6px;border-bottom:1px solid var(--ln);vertical-align:middle}
+td:first-child{min-width:150px}
+td.t,th.r,td.r{text-align:right}
+td.t{white-space:nowrap;min-width:90px;font-variant-numeric:tabular-nums}
+tr.sum td{font-weight:700;background:var(--hd)}
+tr.tot td{font-weight:800;font-size:15px;color:var(--ac);background:var(--hd)}
+.opts{display:flex;flex-wrap:wrap;gap:6px 18px;margin:4px 0 8px}
+.ck{display:flex;gap:6px;align-items:flex-start;font-size:13px;cursor:pointer}
+.ck input{width:auto;margin-top:3px}
+.q{font-weight:600;margin-top:10px;font-size:13px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.sg>div{border:1px solid var(--ln);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.sg b{color:var(--ac);font-size:13px}
+.nota{font-size:12px;color:var(--mu);padding:4px 6px 12px}
+.bar{position:sticky;bottom:0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;background:var(--ac);color:#fff;font-weight:600}
+button.s{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+#st{color:var(--mu);font-size:12px;margin-left:auto}
+@media print{
+ :root{--bg:#fff;--card:#fff;--fg:#000;--mu:#444;--ln:#999;--ac:#0f4c81;--in:#fff;--hd:#eef2f7}
+ .bar{display:none}form{padding:0;max-width:none}.card{break-inside:avoid;border-radius:0}
+ input,select,textarea{border:0;border-bottom:1px solid #999;border-radius:0;padding:2px}
+ select{appearance:none}@page{margin:10mm}
+}
+
+form{max-width:960px;margin:0 auto;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:root{--ok:#1b7a43;--okb:#e3f4ea;--wr:#8a5a00;--wrb:#fff1d6;--bd:#b3261e;--bdb:#fde7e5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ok:#5cd08a;--okb:#12301f;--wr:#f2c05c;--wrb:#3a2d0f;--bd:#ff8a80;--bdb:#3b1816}}
+:root[data-theme="dark"]{--ok:#5cd08a;--okb:#12301f;--wr:#f2c05c;--wrb:#3a2d0f;--bd:#ff8a80;--bdb:#3b1816}
+h2 i{flex:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.hint{font-size:12px;color:var(--mu);min-width:0}
+button.sm{padding:6px 12px;font-size:12px}
+button.dg{color:var(--bd);border-color:var(--bd)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:8px 0 12px}
+.kpi div{border:1px solid var(--ln);border-radius:8px;padding:8px 10px;background:var(--hd);min-width:0}
+.kpi b{display:block;font-size:20px;color:var(--ac);font-variant-numeric:tabular-nums}
+.kpi span{font-size:11px;color:var(--mu)}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:700;background:var(--hd);color:var(--mu);border:1px solid var(--ln);white-space:nowrap}
+.pill.ok{background:var(--okb);color:var(--ok);border-color:transparent}
+.pill.wr{background:var(--wrb);color:var(--wr);border-color:transparent}
+.pill.bd{background:var(--bdb);color:var(--bd);border-color:transparent}
+details.eq,details.gd{border:1px solid var(--ln);border-radius:8px;margin-top:8px;background:var(--card)}
+details.eq>summary,details.gd>summary{cursor:pointer;padding:9px 12px;display:grid;grid-template-columns:minmax(90px,1fr) minmax(110px,1.4fr) auto auto auto;gap:6px 12px;align-items:center;font-size:13px}
+details.gd>summary{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+details>summary:focus-visible{outline:2px solid var(--ac)}
+.eqb{padding:4px 12px 12px;border-top:1px solid var(--ln)}
+.iv{display:grid;grid-template-columns:90px 1fr auto auto;gap:6px 12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--ln);font-size:12px}
+.iv:last-child{border-bottom:0}
+.iv .bt{display:flex;gap:6px;flex-wrap:wrap}
+.gdb{padding:2px 14px 14px;border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 22px}
+.gdb h4{margin:12px 0 4px;font-size:12px;color:var(--ac);text-transform:uppercase;letter-spacing:.04em}
+.gdb ol,.gdb ul{margin:0;padding-left:20px;font-size:13px}
+.gdb p{margin:0;font-size:13px}
+.gdb .nt{grid-column:1/-1;background:var(--hd);border-radius:8px;padding:8px 12px;font-size:12px}
+.warn{border-radius:8px;padding:8px 12px;margin-top:10px;font-size:12px;background:var(--wrb);color:var(--wr);font-weight:600}
+.warn ul{margin:4px 0 0;padding-left:18px;font-weight:400}
+.warn.bd{background:var(--bdb);color:var(--bd)}
+.sug{display:grid;gap:6px;margin:10px 0}
+.sug>div{display:grid;grid-template-columns:110px 1fr;gap:4px 12px;align-items:start;border:1px solid var(--ln);border-radius:8px;padding:8px 10px;font-size:12px}
+.sug ul{margin:0;padding-left:16px}
+.fnd{font-size:12px;margin:8px 0 0}
+.fnd ul{margin:4px 0 0;padding-left:18px}
+.rep{border:1px solid var(--ln);border-radius:8px;padding:6px 14px 14px}
+.rep h4{margin:14px 0 6px;font-size:13px;color:var(--ac);text-transform:uppercase;letter-spacing:.03em}
+.rep dl{margin:0;display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:4px 12px;font-size:13px}
+.rep dt{color:var(--mu);font-weight:600;font-size:12px}
+.rep dd{margin:0;white-space:pre-wrap;min-width:0;overflow-wrap:anywhere}
+.rep table{font-size:12px}
+#hq{max-width:260px}
+[hidden]{display:none!important}
+.mot{width:190px}
+.pill.mut{text-decoration:line-through}
+.tl{margin-top:6px;font-size:12px}
+@media (max-width:560px){
+ details.eq>summary{grid-template-columns:1fr auto}
+ .iv{grid-template-columns:80px 1fr}
+ .rep dl{grid-template-columns:1fr}
+ .sug>div{grid-template-columns:1fr}
+}
+@media print{details.eq,details.gd{display:none}.warn{border:1px solid #999;background:#fff;color:#000}}
+</style>
+<style>
+#auth{max-width:480px;margin:24px auto}
+#auth .g{margin-top:12px}
+#authmsg{min-height:1.4em}
+</style>
+<section class="card" id="auth" aria-labelledby="authTitle">
+<h2 id="authTitle">Acceso al historial de equipos</h2>
+<p class="obj">Inicia sesión con una cuenta autorizada para consultar y guardar intervenciones.</p>
+<div class="g"><label class="fld"><span>Correo electrónico</span><input id="authEmail" type="email" autocomplete="username" required></label><label class="fld"><span>Contraseña</span><input id="authPassword" type="password" autocomplete="current-password" required></label></div>
+<div class="row"><button type="button" id="authLogin">Iniciar sesión</button><span class="hint" id="authmsg" role="status" aria-live="polite"></span></div>
+</section>
+<form id="f" autocomplete="off" onsubmit="return false" hidden>
+<header class="top"><img class="logo" alt="Corporación Educativa Sinfronteras" src="data:image/png;base64,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"><div><div class="brand"><b>JALS</b> SOPORTE TÉCNICO</div>
+<h1>Ficha técnica de diagnóstico y mantenimiento de equipos de cómputo</h1>
+<p class="meta">Código del formato: <b>MT-001</b> · Área responsable: Departamento de Sistemas / Soporte Técnico · Tipo de activo: Equipo de cómputo corporativo</p></div></header>
+<main id="app"></main>
+<p class="nota"><b>NOTA:</b> todo diagnóstico, intervención, repuesto instalado y prueba realizada debe quedar documentado en el historial del activo. No se deben declarar reparaciones o pruebas que no se hayan ejecutado. La ficha individual conserva su ID para consultar todos los mantenimientos históricos.</p>
+<div class="bar"><button type="button" id="bh">Guardar en historial</button><button type="button" class="s" id="bcp">Copiar informe</button><button type="button" class="s" id="bs">Guardar borrador</button><button type="button" class="s" id="bc">Nueva ficha</button><button type="button" class="s" id="authLogout">Cerrar sesión</button><span id="st">Los cambios se guardan solos en este dispositivo.</span></div>
+</form>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='PEGA_AQUI_LA_URL_DEL_PROYECTO';
+const SUPABASE_ANON_KEY='PEGA_AQUI_LA_CLAVE_PUBLICA_ANON';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sel=(n,o)=>`<select name="${n}"><option value="">Seleccionar</option>${o.map(x=>`<option>${x}</option>`).join('')}</select>`;
+const inp=(n,t='text')=>`<input type="${t}" name="${n}"${t==='number'?' min="0" step="any" inputmode="decimal"':''}>`;
+const fld=(l,h,w)=>`<label class="fld${w?' w':''}"><span>${l}</span>${h}</label>`;
+const ta=(n,l,r=3)=>fld(l,`<textarea name="${n}" rows="${r}"></textarea>`,1);
+const rad=(n,o)=>`<div class="opts">${o.map(x=>`<label class="ck"><input type="radio" name="${n}" value="${x}">${x}</label>`).join('')}</div>`;
+const chk=(n,o)=>`<div class="opts">${o.map((x,i)=>`<label class="ck"><input type="checkbox" name="${n}${i}">${x}</label>`).join('')}</div>`;
+const sec=(n,t,ob,b)=>`<section class="card" id="s${n}"><h2><i>${n}</i>${t}</h2>${ob?`<p class="obj">${ob}</p>`:''}${b}</section>`;
+const tbl=(p,rows,def,h2)=>`<div class="tw"><table><tr><th>${h2||'Componente'}</th><th>Estado</th><th>Observaciones / hallazgos</th></tr>${rows.map((r,i)=>`<tr><td>${r[0]}</td><td>${sel(p+i,(r[1]||def).split('|'))}</td><td>${inp(p+i+'o')}</td></tr>`).join('')}</table></div>`;
+
+const HW='Bueno|Regular|Malo',NA=HW+'|N/A';
+const hw=[['Chasis y estructura'],['Placa madre'],['Procesador (CPU)'],['Memoria RAM'],['Disco HDD / SSD'],['Fuente de poder / cargador'],['Ventiladores y refrigeración'],['Disipador térmico'],['Tarjeta gráfica',NA],['Pantalla / Monitor'],['Teclado'],['Mouse / Touchpad'],['Puertos USB y conexiones'],['Batería (portátiles)',NA],['Cableado y conectores']];
+const sw=[['Sistema operativo','Correcto|Deficiente|Falla'],['Activación y licencia','Correcta|Revisar|N/A'],['Controladores (drivers)','Correctos|Desactualizados|Fallas'],['Antivirus / protección','Correcto|Deficiente|Ausente'],['Actualizaciones','Al día|Pendientes|Fallidas'],['Aplicaciones corporativas','Correctas|Fallas'],['Inicio del sistema','Normal|Lento|Fallido'],['Conectividad de red','Correcta|Intermitente|Fallida'],['Conexión a Internet','Correcta|Intermitente|Fallida'],['Espacio de almacenamiento','Suficiente|Bajo|Crítico'],['Rendimiento general','Bueno|Regular|Deficiente'],['Copias de seguridad','Verificadas|Pendientes|No existen']];
+const AP='Aprobado|No aprobado';
+const ts=[['Encendido y arranque'],['Reconocimiento de RAM'],['Estado del disco'],['Temperaturas','Normal|Anormal'],['Ventilación'],['Sistema operativo'],['Conectividad'],['Aplicaciones corporativas'],['Antivirus / Seguridad'],['Periféricos'],['Rendimiento general']];
+const labor=['Diagnóstico técnico','Mantenimiento preventivo','Mantenimiento correctivo','Mantenimiento adaptativo','Mantenimiento predictivo','Instalación / Configuración'];
+const tipos=['<b>PREVENTIVO:</b> limpieza, inspección, ajustes y prevención de fallas.','<b>CORRECTIVO:</b> reparación o sustitución de componentes y solución de errores.','<b>ADAPTATIVO:</b> actualización o modificación para cumplir nuevos requerimientos.','<b>PREDICTIVO:</b> seguimiento de indicadores para anticipar posibles fallas.'];
+const tcorto=['Preventivo','Correctivo','Adaptativo','Predictivo'];
+const TK=['prev','corr','adap','pred'];
+const GOOD=['Bueno','Correcto','Correcta','Correctos','Correctas','Al día','Normal','Suficiente','Verificadas','N/A'];
+const PRI=['Crítica: equipo inoperativo o riesgo grave','Alta: afecta significativamente el trabajo','Media: presenta fallas parciales','Baja: requiere ajustes o mejoras'];
+const OP=['Sí, sin restricciones','Sí, con observaciones','No, requiere intervención inmediata'];
+const CL=['Hardware','Software','Seguridad informática','Conectividad / Red','Rendimiento','Temperatura / Refrigeración','Almacenamiento','Periféricos','Otro'];
+const EV=['Fotografía antes','Fotografía después','Capturas de pruebas (SMART, temperaturas, memoria)','Registro de intervención / orden de servicio'];
+const FIN=['OPERATIVO: equipo funcionando correctamente','OPERATIVO CON OBSERVACIONES: puede trabajar, pero requiere seguimiento','EN OBSERVACIÓN: necesita monitoreo técnico','FUERA DE SERVICIO: no debe utilizarse','BAJA RECOMENDADA: se recomienda evaluar su reemplazo'];
+const SOL=['Sí, completamente','Parcialmente','No, requiere intervención adicional'];
+const meds=[['Temperatura CPU en reposo','°C','Típico 30–50 °C'],['Temperatura CPU bajo carga','°C','Típico por debajo de 85 °C; consulta el máximo del fabricante'],['Temperatura GPU bajo carga','°C','Según el fabricante'],['Estado SMART del disco','texto','Bueno / Precaución / Malo (CrystalDiskInfo)'],['Salud del disco','%','CrystalDiskInfo; vigila la tendencia'],['Sectores reasignados o pendientes','cantidad','Lo normal es 0'],['Espacio libre en disco','%','Recomendado más de 15–20 %'],['RAM instalada / en uso','GB','Según el uso real en el Administrador de tareas'],['Errores de memoria (MemTest86)','cantidad','0 errores'],['Capacidad actual de batería','% del diseño','Revisar si baja de 80 %'],['Ciclos de batería','ciclos','Según el fabricante'],['Tiempo de arranque','segundos','Compara con la medición anterior'],['Errores críticos en el visor de eventos (7 días)','cantidad','Vigila los recurrentes']];
+const DIAS=180;
+
+const G=[
+{k:'Preventivo',obj:'Evitar fallas',prop:'Se hace antes de que aparezcan problemas, con el equipo funcionando. Reduce paradas y alarga la vida útil.',
+ cuando:'En el calendario que defina el área (según polvo, uso y criticidad) y cuando el diagnóstico encuentre suciedad, temperaturas altas o software desactualizado.',
+ pasos:['Inspección inicial: daños, golpes, cables y condiciones físicas.','Respaldo: verificar respaldo y autorización del usuario.','Desenergización: apagar, desconectar y aplicar precauciones ESD.','Limpieza externa: pantalla, teclado, mouse y carcasa.','Limpieza interna: polvo, ventiladores, disipadores y rejillas.','Inspección: conectores, RAM, cables y estado de componentes.','Software: actualizaciones, seguridad y archivos temporales, según autorización.','Pruebas: arranque, temperaturas, rendimiento y periféricos.'],
+ prec:['Usar pulsera o protección antiestática.','No aplicar líquidos directamente sobre los componentes.','No hacer girar los ventiladores a velocidades excesivas con aire comprimido.','No abrir fuentes de poder.','No cambiar pasta térmica sin evaluar si es necesario y sin seguir el procedimiento.','No eliminar archivos del usuario sin autorización.'],
+ inf:['Temperaturas antes y después (valores).','Fotografías del polvo antes y después.','Componentes limpiados e inspeccionados.','Actualizaciones aplicadas y respaldo confirmado.','Fecha del próximo mantenimiento.'],
+ cos:['Mano de obra por horas.','Materiales: aire comprimido, alcohol isopropílico, paños; pasta térmica solo si se justifica.']},
+{k:'Correctivo',obj:'Solucionar fallas',prop:'Se hace cuando ya existe un problema: restablece el funcionamiento sustituyendo o reparando lo que falla.',
+ cuando:'Cuando el diagnóstico encuentra un componente en estado Malo, una falla del sistema, del arranque o de la conectividad.',
+ pasos:['Identificar el síntoma reportado.','Reproducir la falla cuando sea posible.','Realizar pruebas para identificar la causa raíz.','Determinar si el problema es de hardware o de software.','Cotizar los repuestos y la mano de obra.','Solicitar autorización.','Reparar o sustituir el elemento defectuoso.','Ejecutar pruebas de funcionamiento.','Documentar la reparación y entregar el equipo.'],
+ prec:['No autorizar una reparación costosa sin diagnóstico, cotización y aprobación.','Respaldar la información antes de tocar discos o reinstalar el sistema.','Conservar el repuesto retirado hasta la entrega y registrar su disposición.'],
+ inf:['Síntoma reportado y causa raíz, con la prueba que la demostró.','Repuesto retirado e instalado (serie y garantía).','Autorización recibida.','Pruebas posteriores con resultado.'],
+ cos:['Repuestos (cantidad × valor unitario).','Mano de obra de reparación e instalación y configuración.'],
+ nota:'Ejemplo: el computador se reinicia constantemente. No asumas que la fuente está dañada: comprueba temperaturas, memoria RAM, registros de errores, alimentación y estabilidad del sistema.'},
+{k:'Adaptativo',obj:'Adaptarse a cambios',prop:'Se hace cuando cambia el entorno tecnológico y el equipo debe ajustarse: nuevo software, red, sistema operativo o periférico.',
+ cuando:'Cuando la empresa adopta un nuevo requerimiento. Escríbelo en la sección 5 para que el sistema sugiera este tipo.',
+ pasos:['Identificar el nuevo requerimiento de la empresa.','Revisar si el equipo soporta el cambio.','Verificar compatibilidad de hardware, software y licencias.','Evaluar riesgos y necesidades de respaldo.','Presupuestar las modificaciones.','Ejecutar la adaptación autorizada.','Verificar que el equipo pueda cumplir la nueva función.','Actualizar la ficha técnica.'],
+ prec:['No instalar ni migrar sin confirmar compatibilidad y licencias.','Respaldar antes de cambiar el sistema operativo o configuraciones de red.'],
+ inf:['Requerimiento y quién lo solicita.','Resultado de la verificación de compatibilidad.','Licencias y cambios de configuración.','Prueba de la nueva función y ficha actualizada.'],
+ cos:['Licencias y ampliaciones (RAM, almacenamiento).','Horas de instalación y configuración.'],
+ nota:'Ejemplo: la empresa implementa un software contable que exige 16 GB de RAM y el equipo tiene 8 GB. Se evalúa compatibilidad, se cotiza la ampliación y se comprueba que el software funcione.'},
+{k:'Predictivo',obj:'Anticiparse al deterioro',prop:'Se basa en mediciones, registros y tendencias para detectar una falla antes de que ocurra.',
+ cuando:'Cuando hay indicadores en deterioro (SMART, temperaturas, batería, errores recurrentes) aunque el equipo todavía funcione.',
+ pasos:['Recopilar mediciones del equipo.','Revisar el estado SMART del disco.','Registrar temperaturas de CPU y GPU.','Analizar errores recurrentes.','Revisar ciclos y capacidad de batería cuando corresponda.','Comparar los resultados con mediciones anteriores.','Identificar tendencias de deterioro.','Recomendar intervención antes de la falla.'],
+ prec:['Una medición aislada no basta: compara tendencias.','Consulta los indicadores del fabricante y usa herramientas confiables.'],
+ inf:['Valores medidos con fecha, en la tabla de mediciones.','Comparación con mediciones anteriores del mismo ID.','Umbral usado y tendencia observada.','Recomendación con fecha límite de intervención.'],
+ cos:['Horas de monitoreo y análisis.','Reemplazo programado si se recomienda (respaldar y presupuestar).']}];
+const ACT={prev:'Limpieza interna y externa, revisión de ventiladores y temperaturas, verificación de conexiones, actualización controlada y revisión de antivirus y almacenamiento.',corr:'Identificar causa raíz, cotizar y obtener autorización, reparar o sustituir el elemento defectuoso y ejecutar pruebas de funcionamiento.',adap:'Verificar compatibilidad de hardware, software y licencias, presupuestar, ejecutar la adaptación autorizada y actualizar la ficha técnica.',pred:'Registrar SMART, temperaturas, errores y batería; comparar con mediciones anteriores y programar la intervención antes de la falla.'};
+const guideHTML=()=>`<section class="card" id="sg"><h2>Guía: cómo hacer bien cada mantenimiento</h2><p class="obj">Cada tipo tiene un propósito distinto y un mismo equipo puede necesitar varios en una intervención. Ejemplo: con el disco deteriorado, el diagnóstico lo identifica, el correctivo lo cambia, el preventivo limpia y revisa, el adaptativo configura el sistema nuevo y el predictivo vigila la salud del disco nuevo.</p>${G.map(g=>`<details class="gd"><summary><b>${g.k}</b><span class="hint">${g.obj}</span></summary><div class="gdb"><div><h4>Propósito</h4><p>${g.prop}</p><h4>Cuándo aplicarlo</h4><p>${g.cuando}</p><h4>Presupuesto</h4><ul>${g.cos.map(x=>`<li>${x}</li>`).join('')}</ul></div><div><h4>Procedimiento</h4><ol>${g.pasos.map(x=>`<li>${x}</li>`).join('')}</ol></div><div><h4>Precauciones</h4><ul>${g.prec.map(x=>`<li>${x}</li>`).join('')}</ul></div><div><h4>Qué debe quedar en el informe</h4><ul>${g.inf.map(x=>`<li>${x}</li>`).join('')}</ul></div>${g.nota?`<div class="nt">${g.nota}</div>`:''}</div></details>`).join('')}<p class="tl">Herramientas para el diagnóstico: <a href="https://crystalmark.info/en/software/crystaldiskinfo/" target="_blank" rel="noopener">CrystalDiskInfo</a> (SMART y temperatura de discos), <a href="https://www.hwinfo.com/" target="_blank" rel="noopener">HWiNFO</a> (sensores y componentes), <a href="https://www.memtest86.com/" target="_blank" rel="noopener">MemTest86</a> (memoria RAM) y el Administrador de tareas de Windows (CPU, RAM, disco y procesos).</p></section>`;
+
+const histHTML=`<section class="card" id="hist"><h2>Equipos registrados</h2><p class="obj">Cada intervención guardada queda asociada al ID del equipo. <span id="mode" class="pill">Conectando…</span> <span id="hnote"></span></p><div class="kpi" id="kpi"></div><div class="row" style="margin-top:0"><input id="hq" type="search" placeholder="Buscar por ID, marca o usuario" aria-label="Buscar equipo"><button type="button" class="s sm" id="bex">Cargar ficha de ejemplo</button><label class="ck" id="lan" hidden><input type="checkbox" id="shan">Ver anuladas</label></div><div id="hl"></div><details class="gd"><summary><b>Respaldo del historial</b><span class="hint">Copiar o restaurar los datos</span></summary><div class="gdb"><div class="nt"><textarea id="bk" rows="4" placeholder="Aquí aparece el respaldo. Para restaurar, pega el texto y pulsa Restaurar."></textarea><div class="row"><button type="button" class="s sm" id="bbk">Mostrar y copiar respaldo</button><button type="button" class="s sm" id="brs">Restaurar desde el texto</button></div></div></div></details></section>`;
+
+const medsTable=`<div class="tw"><table><tr><th>Parámetro</th><th>Antes</th><th>Después</th><th>Unidad</th><th>Referencia</th></tr>${meds.map((m,i)=>`<tr><td>${m[0]}</td><td>${inp('m'+i+'a')}</td><td>${inp('m'+i+'d')}</td><td>${m[1]}</td><td class="hint">${m[2]}</td></tr>`).join('')}</table></div><p class="hint">Escribe valores medidos, no «está bien». Las referencias son orientativas: manda la especificación del fabricante.</p>`;
+const rowsA=[0,1,2,3,4,5].map(i=>`<tr><td>${inp('a'+i+'d')}</td><td>${inp('a'+i+'q','number')}</td><td>${inp('a'+i+'u','number')}</td><td class="t r" id="at${i}">$ 0</td></tr>`).join('');
+const rowsB=labor.map((l,i)=>`<tr><td>${l}</td><td>${inp('b'+i+'h','number')}</td><td>${inp('b'+i+'u','number')}</td><td class="t r" id="bt${i}">$ 0</td></tr>`).join('');
+const firma=(k,t)=>`<div><b>${t}</b>${fld('Nombre',inp(k+'n'))}${fld('Firma',inp(k+'f'))}</div>`;
+
+$('#app').innerHTML=histHTML+guideHTML()+
+sec(1,'Identificación del equipo','',`<div class="g">${fld('ID del equipo / Activo',inp('id'))}${fld('Marca',inp('marca'))}${fld('Modelo',inp('modelo'))}${fld('Número de serie',inp('serie'))}${fld('Código de inventario',inp('inv'))}${fld('Usuario responsable',inp('user'))}${fld('Área / Departamento',inp('area'))}${fld('Ubicación',inp('ubi'))}${fld('Sector',`<input type="text" name="sector" list="sectores"><datalist id="sectores"></datalist>`)}${fld('Fecha del último diagnóstico',inp('fud','date'))}${fld('Fecha del diagnóstico actual',inp('fda','date'))}${fld('Técnico responsable',inp('tec'))}${fld('Tipo de equipo',sel('teq',['Desktop','Portátil','All-in-One']))}${fld('Estado del equipo',sel('eeq',['Activo','En reparación','Fuera de servicio']))}</div><div class="row"><button type="button" class="s sm" id="bl">Cargar datos del equipo por ID</button><span class="hint" id="lh">Si el ID ya está en el historial, se completan marca, modelo y la fecha del último diagnóstico.</span></div>`)+
+sec(2,'Diagnóstico físico – Hardware','Identificar el estado de los componentes físicos del equipo.',tbl('h',hw,HW)+`<div class="g" style="margin-top:10px">${ta('hadd','Hallazgos adicionales')}</div>`)+
+sec(3,'Diagnóstico lógico – Software','',tbl('s',sw,'','Elemento')+`<div class="g" style="margin-top:10px">${fld('Sistema operativo y versión',inp('sov'))}${fld('Software instalado relevante',inp('swi'))}${fld('Errores encontrados',inp('err'),1)}</div>`)+
+sec(4,'Diagnóstico general','',`<div class="fnd" id="fnd"></div><div class="row"><button type="button" class="s sm" id="bfn">Redactar desde los hallazgos</button><span class="hint">Copia los hallazgos detectados a las dos casillas de abajo sin borrar lo que ya escribiste.</span></div><div class="g" style="margin-top:10px">${ta('tiene','¿Qué tiene el equipo actualmente? Síntomas, fallas, daños, errores, comportamientos anormales y condiciones encontradas.')}${ta('falta','¿Qué le hace falta al equipo? Componentes, actualizaciones, configuraciones, reparaciones o recursos que necesita.')}</div><div class="q">Clasificación de los hallazgos</div>${chk('cl',CL)}${fld('Otro (especificar)',inp('clo'),1)}<div class="q">Nivel de prioridad</div>${rad('pri',PRI)}<div class="q">¿El equipo puede seguir operando?</div>${rad('op',OP)}`)+
+sec(5,'Tipo de mantenimiento requerido','Marcar todos los que correspondan.',`<div class="g">${fld('Nuevo requerimiento del entorno que el equipo debe cumplir (software, red, periférico). Activa el mantenimiento adaptativo.',inp('req'),1)}</div><div class="sug" id="sug"></div><div class="row" style="margin-top:0"><button type="button" class="s sm" id="bap">Aplicar sugerencia</button><span class="hint">Marca los tipos, propone la prioridad y redacta justificación y actividades. Puedes cambiarlo todo después.</span></div>`+chk('tm',tipos)+`<div class="g">${ta('just','Justificación técnica de la selección')}${ta('acts','Actividades que se deben realizar')}</div>`)+
+sec(6,'Presupuesto de mantenimiento','',`<h3>A. Repuestos y materiales</h3><div class="tw"><table><tr><th>Descripción</th><th>Cantidad</th><th>Valor unitario ($)</th><th class="r">Total</th></tr>${rowsA}<tr class="sum"><td colspan="3">Subtotal repuestos</td><td class="t r" id="sa">$ 0</td></tr></table></div>
+<h3>B. Mano de obra y servicios</h3><div class="tw"><table><tr><th>Actividad</th><th>Horas / Cantidad</th><th>Valor unitario ($)</th><th class="r">Total</th></tr>${rowsB}<tr class="sum"><td colspan="3">Subtotal mano de obra</td><td class="t r" id="sb">$ 0</td></tr></table></div>
+<h3>C. Resumen económico</h3><div class="tw"><table><tr><th>Concepto</th><th class="r">Valor</th></tr><tr><td>Subtotal repuestos</td><td class="t r" id="r1">$ 0</td></tr><tr><td>Subtotal mano de obra</td><td class="t r" id="r2">$ 0</td></tr><tr><td>Otros costos ($)</td><td>${inp('otros','number')}</td></tr><tr><td>Subtotal general</td><td class="t r" id="r3">$ 0</td></tr><tr><td><label class="ck"><input type="checkbox" name="iva">Aplicar IVA (19 %)</label></td><td class="t r" id="r4">$ 0</td></tr><tr class="tot"><td>TOTAL DEL PRESUPUESTO</td><td class="t r" id="r5">$ 0</td></tr></table></div>
+<div class="g" style="margin-top:10px">${fld('Tiempo estimado de intervención',inp('tie'))}${fld('Garantía de los repuestos',inp('gr'))}${fld('Garantía del servicio',inp('gs'))}${fld('Estado de aprobación',sel('apr',['Pendiente','Aprobado','Rechazado']))}</div><div class="q">¿Requiere autorización del responsable?</div>${rad('aut',['Sí','No'])}`)+
+sec(7,'Registro de ejecución del mantenimiento','',`<div id="w7"></div><div class="g">${fld('Fecha de intervención',inp('fi','date'))}${fld('Hora de inicio',inp('hi','time'))}${fld('Hora de finalización',inp('hf','time'))}${fld('Técnico ejecutor',inp('tex'))}${fld('Actividades ejecutadas',inp('aej'))}${fld('Repuestos instalados',inp('rin'))}${fld('Software instalado / actualizado',inp('sin'))}${fld('Configuraciones realizadas',inp('cfg'))}</div><div class="q">Tipo de mantenimiento realizado</div>${chk('tr',tcorto)}<div class="g">${ta('proc','Descripción del procedimiento realizado')}${ta('rret','Repuestos retirados y disposición')}${ta('nov','Novedades durante la intervención')}</div>`)+
+sec(8,'Pruebas, mediciones y validación final','',tbl('p',ts,AP,'Prueba').replace('<th>Observaciones / hallazgos</th>','<th>Observaciones</th>')+`<h3>Valores medidos antes y después</h3>${medsTable}<h3>Evidencias</h3>${chk('ev',EV)}<div class="q">¿Se solucionaron las fallas identificadas?</div>${rad('sol',SOL)}<div class="g">${ta('pend','Pendientes y recomendaciones')}</div>`)+
+sec(9,'Estado final del equipo','',`<div id="w9"></div>`+rad('fin',FIN)+`<div class="g">${fld('Fecha del próximo mantenimiento recomendado',inp('fpm','date'))}${ta('obsf','Observaciones finales')}</div>`)+
+sec(10,'Responsables y aprobaciones','',`<div class="sg">${firma('f1','Técnico responsable')}${firma('f2','Responsable del área de Sistemas')}${firma('f3','Usuario / Responsable del equipo')}</div><div class="g" style="margin-top:10px">${fld('Fecha de entrega',inp('fent','date'))}</div>`)+
+sec(11,'Informe técnico del mantenimiento','Se arma solo con lo que diligenciaste: diagnóstico inicial, hallazgos, procedimiento, resultados y recomendaciones.',`<div id="gaps"></div><div id="rep" class="rep"></div><textarea id="cp" rows="6" hidden readonly aria-label="Texto del informe"></textarea>`);
+
+const F=$('#f'),K='mt001_borrador_v2',HK='mt001_historial';
+const draftKey=()=>K+'_'+(ME||'sin_sesion');
+const fmt=v=>'$ '+Math.round(v).toLocaleString('es-CO');
+const nv=n=>parseFloat(F.elements[n]&&F.elements[n].value)||0;
+const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const addDays=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const days=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
+const num=v=>{const m=String(v==null?'':v).replace(',','.').match(/-?\d+(\.\d+)?/);return m?parseFloat(m[0]):null};
+const st=m=>$('#st').textContent=m;
+let H=[],curSid=null,ME=null,CANEDIT=false,SHAN=false,shared=false,RO=false,sb=null,liveChannel=null;
+
+function totals(d){let a=0,b=0;for(let i=0;i<6;i++){a+=(parseFloat(d['a'+i+'q'])||0)*(parseFloat(d['a'+i+'u'])||0);b+=(parseFloat(d['b'+i+'h'])||0)*(parseFloat(d['b'+i+'u'])||0)}
+ const s=a+b+(parseFloat(d.otros)||0),iv=d.iva?s*.19:0;return{a,b,s,iv,total:s+iv}}
+function calc(){for(let i=0;i<6;i++){$('#at'+i).textContent=fmt(nv('a'+i+'q')*nv('a'+i+'u'));$('#bt'+i).textContent=fmt(nv('b'+i+'h')*nv('b'+i+'u'))}
+ const t=totals(collect());[['sa',t.a],['sb',t.b],['r1',t.a],['r2',t.b],['r3',t.s],['r4',t.iv],['r5',t.total]].forEach(([k,v])=>$('#'+k).textContent=fmt(v))}
+function collect(){const d={};for(const e of F.elements){if(!e.name)continue;
+ if(e.type==='radio'){if(e.checked)d[e.name]=e.value}else if(e.type==='checkbox')d[e.name]=e.checked;else d[e.name]=e.value}return d}
+function fill(d){for(const e of F.elements){if(!e.name)continue;
+ if(e.type==='radio')e.checked=d[e.name]===e.value;else if(e.type==='checkbox')e.checked=!!d[e.name];else e.value=d[e.name]||''}refresh()}
+function setField(n,v){const e=F.elements[n];if(!e)return;if(e.length!==undefined&&!e.tagName){[...e].forEach(r=>r.checked=r.value===v)}else if(e.type==='checkbox')e.checked=!!v;else e.value=v}
+
+/* ---------- análisis: qué tiene, qué le hace falta, qué mantenimiento ---------- */
+const SWR={0:{Deficiente:['corr','Corregir el sistema operativo'],Falla:['corr','Reparar o reinstalar el sistema operativo']},1:{Revisar:['adap','Regularizar la activación y licencia']},2:{Desactualizados:['prev','Actualizar controladores de forma controlada'],Fallas:['corr','Corregir o reinstalar controladores']},3:{Deficiente:['prev','Reforzar y actualizar la protección'],Ausente:['corr','Instalar protección antivirus']},4:{Pendientes:['prev','Aplicar actualizaciones pendientes'],Fallidas:['corr','Corregir las actualizaciones fallidas']},5:{Fallas:['corr','Corregir las aplicaciones corporativas']},6:{Lento:['prev','Optimizar el inicio del sistema'],Fallido:['corr','Reparar el arranque']},7:{Intermitente:['corr','Diagnosticar la red local'],Fallida:['corr','Reparar la conectividad de red']},8:{Intermitente:['corr','Diagnosticar la salida a Internet'],Fallida:['corr','Reparar la conexión a Internet']},9:{Bajo:['prev','Liberar espacio con autorización del usuario'],Crítico:['corr','Liberar o ampliar el almacenamiento']},10:{Regular:['prev','Optimizar el rendimiento'],Deficiente:['corr','Corregir la causa del bajo rendimiento']},11:{Pendientes:['prev','Verificar y realizar respaldo antes de intervenir'],'No existen':['prev','Crear respaldo antes de intervenir']}};
+const SWA={3:'Seguridad informática',7:'Conectividad / Red',8:'Conectividad / Red',9:'Almacenamiento',10:'Rendimiento'};
+function analyze(d){
+ const T={prev:[],corr:[],adap:[],pred:[]},fin=[];let crit=false,reg=0,any=false;
+ const add=(t,w)=>{if(!T[t].includes(w))T[t].push(w)};
+ hw.forEach((r,i)=>{const v=d['h'+i];if(!v)return;any=true;const nm=r[0],o=d['h'+i+'o'],ob=o?' ('+o+')':'';
+  if(v==='Malo'){if([1,2,4,5].includes(i))crit=true;add('corr',nm+': Malo');fin.push({a:i===6||i===7?'Temperatura / Refrigeración':'Hardware',t:nm+': Malo'+ob,x:'Reparar o sustituir: '+nm.toLowerCase()})}
+  else if(v==='Regular'){reg++;
+   if([0,6,7].includes(i)){add('prev',nm+': Regular');fin.push({a:'Hardware',t:nm+': Regular'+ob,x:'Limpieza y ajuste: '+nm.toLowerCase()})}
+   else{add('pred',nm+': Regular');fin.push({a:'Hardware',t:nm+': Regular'+ob,x:'Vigilar la evolución: '+nm.toLowerCase()})}}});
+ sw.forEach((r,i)=>{const v=d['s'+i];if(!v)return;any=true;const rule=(SWR[i]||{})[v];if(!rule)return;
+  if(i===0&&v==='Falla'||i===6&&v==='Fallido')crit=true;
+  add(rule[0],r[0]+': '+v);fin.push({a:SWA[i]||'Software',t:r[0]+': '+v+(d['s'+i+'o']?' ('+d['s'+i+'o']+')':''),x:rule[1]})});
+ const M=i=>num(d['m'+i+'a']);
+ const mt=(i,f)=>{const v=M(i);if(v!=null)f(v)};
+ mt(0,v=>{if(v>55){add('prev','CPU en reposo a '+v+' °C');fin.push({a:'Temperatura / Refrigeración',t:'CPU en reposo a '+v+' °C',x:'Limpiar y revisar la refrigeración'})}});
+ mt(1,v=>{if(v>85){add('prev','CPU bajo carga a '+v+' °C');fin.push({a:'Temperatura / Refrigeración',t:'CPU bajo carga a '+v+' °C',x:'Limpiar y revisar la refrigeración; cambiar pasta térmica solo si se justifica'})}});
+ mt(2,v=>{if(v>85){add('prev','GPU bajo carga a '+v+' °C');fin.push({a:'Temperatura / Refrigeración',t:'GPU bajo carga a '+v+' °C',x:'Revisar la refrigeración de la GPU'})}});
+ const sm=String(d.m3a||'').toLowerCase();
+ if(/malo|bad/.test(sm)){crit=true;add('corr','SMART del disco: malo');add('pred','SMART del disco: malo');fin.push({a:'Almacenamiento',t:'SMART del disco: '+d.m3a,x:'Respaldar y sustituir el disco'})}
+ else if(/precauc|caution|advert/.test(sm)){add('pred','SMART del disco: precaución');fin.push({a:'Almacenamiento',t:'SMART del disco: '+d.m3a,x:'Respaldar y programar el reemplazo del disco'})}
+ mt(4,v=>{if(v<50){add('corr','Salud del disco '+v+' %');fin.push({a:'Almacenamiento',t:'Salud del disco '+v+' %',x:'Respaldar y sustituir el disco'})}else if(v<80){add('pred','Salud del disco '+v+' %');fin.push({a:'Almacenamiento',t:'Salud del disco '+v+' %',x:'Vigilar la tendencia de la salud del disco'})}});
+ mt(5,v=>{if(v>0){add('pred','Sectores reasignados o pendientes: '+v);fin.push({a:'Almacenamiento',t:'Sectores reasignados o pendientes: '+v,x:'Vigilar el disco y planificar su reemplazo'})}});
+ mt(6,v=>{if(v<15){add('prev','Espacio libre '+v+' %');fin.push({a:'Almacenamiento',t:'Espacio libre '+v+' %',x:'Liberar espacio con autorización del usuario'})}});
+ mt(8,v=>{if(v>0){add('corr','Errores de memoria: '+v);fin.push({a:'Hardware',t:'MemTest86 con '+v+' errores',x:'Sustituir la memoria RAM defectuosa'})}});
+ mt(9,v=>{if(v<80){add('pred','Capacidad de batería '+v+' %');fin.push({a:'Hardware',t:'Capacidad de batería '+v+' %',x:'Vigilar la batería y planificar su reemplazo'})}});
+ mt(12,v=>{if(v>0){add('pred','Errores críticos en el visor de eventos: '+v);fin.push({a:'Software',t:'Errores críticos en el visor de eventos: '+v,x:'Analizar si se repiten y su causa'})}});
+ if(d.fud){const ref=d.fda||today();const n=days(d.fud,ref);if(n>DIAS){add('prev','Último diagnóstico hace '+n+' días');any=true}}
+ if((d.req||'').trim()){add('adap','Nuevo requerimiento: '+d.req.trim());any=true}
+ const hasCorr=T.corr.length>0;
+ let pri=null;if(crit)pri=0;else if(hasCorr||fin.some(f=>/: Malo/.test(f.t)))pri=1;else if(T.prev.length+T.pred.length>=2||reg>=2)pri=2;else if(T.prev.length+T.pred.length+T.adap.length>0)pri=3;
+ return{T,fin,pri,any}}
+
+function renderSug(d){const a=analyze(d);
+ $('#fnd').innerHTML=a.fin.length?`<b>Hallazgos detectados (${a.fin.length})</b><ul>${a.fin.map(f=>`<li><b>${esc(f.a)}:</b> ${esc(f.t)} → ${esc(f.x)}</li>`).join('')}</ul>`:'<span class="hint">Al marcar estados Regular o Malo, o estados de software con problemas, los hallazgos aparecen aquí.</span>';
+ if(!a.any){$('#sug').innerHTML='<div><b>Sugerencia</b><span class="hint">Completa los diagnósticos de hardware y software, o las mediciones, para recibir una sugerencia de tipo de mantenimiento.</span></div>';return a}
+ $('#sug').innerHTML=TK.map((k,i)=>`<div><span><span class="pill ${a.T[k].length?(k==='corr'?'bd':'wr'):''}">${tcorto[i]}</span></span><span>${a.T[k].length?`<ul>${a.T[k].map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<span class="hint">No se detecta necesidad.</span>'}</span></div>`).join('')+`<div><b>Prioridad sugerida</b><span>${a.pri==null?'—':esc(PRI[a.pri].split(':')[0])}</span></div>`;
+ return a}
+function setTA(n,t){const e=F.elements[n];if(!e||!t)return;const c=e.value.trim();if(!c)e.value=t;else if(!c.includes(t))e.value=c+'\n'+t}
+$('#bfn').onclick=()=>{const a=analyze(collect());if(!a.fin.length){st('Aún no hay hallazgos para redactar.');return}
+ setTA('tiene',a.fin.map(f=>'• '+f.a+': '+f.t).join('\n'));setTA('falta',[...new Set(a.fin.map(f=>'• '+f.x))].join('\n'));
+ const cl=new Set(a.fin.map(f=>f.a));CL.forEach((c,i)=>{if(cl.has(c)){const e=F.elements['cl'+i];if(e)e.checked=true}});
+ refresh();save();st('Hallazgos copiados al diagnóstico general.')};
+$('#bap').onclick=()=>{const a=analyze(collect());if(!a.any){st('Completa primero el diagnóstico.');return}
+ TK.forEach((k,i)=>{if(a.T[k].length)F.elements['tm'+i].checked=true});
+ if(a.pri!=null)setField('pri',PRI[a.pri]);
+ const used=TK.filter(k=>a.T[k].length);
+ setTA('just',used.map(k=>tcorto[TK.indexOf(k)]+': '+a.T[k].join('; ')+'.').join('\n'));
+ setTA('acts',used.map(k=>tcorto[TK.indexOf(k)]+': '+ACT[k]).join('\n'));
+ refresh();save();st('Sugerencia aplicada. Revísala antes de cotizar.')};
+
+/* ---------- avisos de control ---------- */
+function warns(d){const w7=[],w9=[];const tot=totals(d).total;
+ const ejec=['fi','aej','rin','sin','cfg','proc'].some(k=>(d[k]||'').trim());
+ if(ejec&&d.apr!=='Aprobado')w7.push(tot>0?'Hay ejecución registrada y presupuesto, pero la aprobación no está en «Aprobado». No se autoriza una reparación sin diagnóstico, cotización y aprobación.':'Hay ejecución registrada y la aprobación no está en «Aprobado».');
+ if(ejec&&!TK.some((k,i)=>d['tm'+i]))w7.push('Hay ejecución registrada pero no se marcó el tipo de mantenimiento requerido en la sección 5.');
+ const p=ts.map((r,i)=>d['p'+i]);const bad=p.some(v=>v==='No aprobado'||v==='Anormal'),miss=p.some(v=>!v);
+ if(d.fin&&d.fin.startsWith('OPERATIVO')){if(miss)w9.push('El estado final es operativo y faltan pruebas finales por completar.');if(bad)w9.push('Hay pruebas «No aprobado» o «Anormal»: el equipo no debería quedar como operativo.')}
+ if(d.sol==='Sí, completamente'&&bad)w9.push('Marcaste las fallas como solucionadas, pero hay pruebas no aprobadas.');
+ if(d.hi&&d.hf&&d.hf<d.hi)w7.push('La hora de finalización es anterior a la de inicio.');
+ return{w7,w9}}
+const wHTML=l=>l.length?`<div class="warn bd">Revisa antes de cerrar<ul>${l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
+
+/* ---------- informe técnico ---------- */
+function report(d){
+ const L=(arr,pre)=>arr.map(x=>(pre||'')+x).join('\n');
+ const names=(p,arr)=>arr.filter((x,i)=>d[p+i]);
+ const hwb=hw.map((r,i)=>[r[0],d['h'+i],d['h'+i+'o']]).filter(x=>x[1]&&!GOOD.includes(x[1]));
+ const swb=sw.map((r,i)=>[r[0],d['s'+i],d['s'+i+'o']]).filter(x=>x[1]&&!GOOD.includes(x[1]));
+ const li=x=>'• '+x[0]+': '+x[1]+(x[2]?' — '+x[2]:'');
+ const tm=names('tm',tcorto),tr=names('tr',tcorto),cl=names('cl',CL),ev=names('ev',EV);
+ const t=totals(d);let dur='';if(d.hi&&d.hf&&d.hf>=d.hi){const m=(+d.hf.slice(0,2)*60+ +d.hf.slice(3))-(+d.hi.slice(0,2)*60+ +d.hi.slice(3));dur=' ('+Math.floor(m/60)+' h '+String(m%60).padStart(2,'0')+' min)'}
+ const mrows=meds.map((m,i)=>[m[0]+' ('+m[1]+')',d['m'+i+'a'],d['m'+i+'d'],m[2]]).filter(r=>(r[1]||'').trim()||(r[2]||'').trim());
+ const prow=ts.map((r,i)=>d['p'+i]?'• '+r[0]+': '+d['p'+i]+(d['p'+i+'o']?' — '+d['p'+i+'o']:''):'').filter(Boolean);
+ const B=[
+ {h:'Equipo',r:[['ID',d.id],['Equipo',[d.marca,d.modelo].filter(Boolean).join(' ')+(d.teq?' · '+d.teq:'')],['Serie / inventario',[d.serie,d.inv].filter(Boolean).join(' / ')],['Sector / usuario / área / ubicación',[d.sector,d.user,d.area,d.ubi].filter(Boolean).join(' · ')],['Último diagnóstico',d.fud],['Diagnóstico actual',d.fda],['Técnico responsable',d.tec]]},
+ {h:'1. Diagnóstico inicial',r:[['Hardware fuera de estado óptimo',L(hwb.map(li))],['Software fuera de estado óptimo',L(swb.map(li))],['Sistema operativo y versión',d.sov],['Qué tiene el equipo',d.tiene],['Prioridad',d.pri],['¿Puede seguir operando?',d.op]]},
+ {h:'2. Hallazgos',r:[['Clasificación',cl.join(', ')+(d.cl8&&d.clo?' ('+d.clo+')':'')],['Errores encontrados',d.err],['Hallazgos adicionales',d.hadd],['Qué le hace falta',d.falta],['Mantenimiento requerido',tm.join(', ')],['Justificación',d.just],['Actividades previstas',d.acts]]},
+ {h:'3. Procedimiento',r:[['Mantenimiento realizado',tr.join(', ')],['Fecha y horario',[d.fi,d.hi&&d.hf?d.hi+' a '+d.hf+dur:''].filter(Boolean).join(' · ')],['Técnico ejecutor',d.tex],['Actividades ejecutadas',d.aej],['Repuestos instalados',d.rin],['Software instalado / actualizado',d.sin],['Configuraciones',d.cfg],['Descripción',d.proc],['Repuestos retirados y disposición',d.rret],['Novedades',d.nov]]},
+ {h:'4. Resultados',tab:mrows,r:[['Pruebas finales',L(prow)],['¿Fallas solucionadas?',d.sol],['Estado final',d.fin],['Evidencias',ev.join(', ')]]},
+ {h:'5. Recomendaciones',r:[['Pendientes y recomendaciones',d.pend],['Próximo mantenimiento',d.fpm],['Observaciones finales',d.obsf]]},
+ {h:'Costos',r:t.total>0||t.s>0?[['Repuestos',fmt(t.a)],['Mano de obra',fmt(t.b)],['Otros',fmt(+d.otros||0)],['IVA',d.iva?fmt(t.iv):'No aplicado'],['Total',fmt(t.total)],['Aprobación',d.apr],['Garantía repuestos / servicio',[d.gr,d.gs].filter(Boolean).join(' / ')],['Tiempo de intervención',d.tie]]:[]},
+ {h:'Responsables',r:[['Técnico',d.f1n],['Sistemas',d.f2n],['Usuario',d.f3n],['Entrega',d.fent]]}];
+ const gaps=[];
+ if(!(d.id||'').trim())gaps.push('Falta el ID del equipo.');
+ if(!mrows.length)gaps.push('No hay valores medidos. Un informe real incluye mediciones, no solo «funciona correctamente».');
+ else if(!mrows.some(r=>(r[1]||'').trim()&&(r[2]||'').trim()))gaps.push('Las mediciones no tienen comparación antes y después.');
+ if(!ev.length)gaps.push('No hay evidencias marcadas (fotos antes y después, capturas, registro).');
+ if(ts.some((r,i)=>!d['p'+i]))gaps.push('Faltan pruebas finales por completar.');
+ if(!(d.proc||'').trim())gaps.push('Falta la descripción del procedimiento realizado.');
+ if(!d.fpm)gaps.push('Falta la fecha del próximo mantenimiento.');
+ const clean=B.map(b=>({...b,r:b.r.filter(x=>x[1]&&String(x[1]).trim())})).filter(b=>b.r.length||(b.tab&&b.tab.length));
+ const text='INFORME TÉCNICO MT-001\n'+clean.map(b=>'\n'+b.h.toUpperCase()+'\n'+b.r.map(x=>x[0]+': '+x[1]).join('\n')+(b.tab&&b.tab.length?'\nMediciones (parámetro | antes | después):\n'+b.tab.map(r=>'• '+r[0]+' | '+(r[1]||'—')+' | '+(r[2]||'—')).join('\n'):'')).join('\n');
+ const html=clean.length?clean.map(b=>`<h4>${esc(b.h)}</h4>${b.r.length?`<dl>${b.r.map(x=>`<dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd>`).join('')}</dl>`:''}${b.tab&&b.tab.length?`<div class="tw"><table><tr><th>Parámetro</th><th>Antes</th><th>Después</th><th>Referencia</th></tr>${b.tab.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1]||'—')}</td><td>${esc(r[2]||'—')}</td><td class="hint">${esc(r[3])}</td></tr>`).join('')}</table></div>`:''}`).join(''):'<p class="hint">El informe aparece aquí a medida que diligencias la ficha.</p>';
+ return{html,text,gaps}}
+
+let rt=0;
+function refresh(){calc();const d=collect();renderSug(d);const w=warns(d);$('#w7').innerHTML=wHTML(w.w7);$('#w9').innerHTML=wHTML(w.w9);
+ clearTimeout(rt);rt=setTimeout(()=>{const r=report(collect());$('#rep').innerHTML=r.html;$('#gaps').innerHTML=r.gaps.length?`<div class="warn">Para completar el informe<ul>${r.gaps.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';},120)}
+
+/* ---------- historial por ID ---------- */
+const recDate=r=>r.data.fda||r.data.fi||(r.savedAt||'').slice(0,10);
+const idKey=r=>(r.data.id||'').trim().toLowerCase();
+function updBtn(){$('#bh').textContent=curSid?'Actualizar en historial':'Guardar en historial'}
+async function persist(rec){
+ if(!sb||!ME)throw{code:'auth-required'};
+ const {error}=await sb.from('mt001_intervenciones').upsert({sid:rec.sid,data:rec.data,saved_at:rec.savedAt,created_by:rec.by||ME,last_by:ME,anulada:!!rec.anulada,motivo:rec.motivo||null,anulada_por:rec.anuladaPor||null,anulada_en:rec.anuladaEn||null},{onConflict:'sid'});
+ if(error)throw error;
+ await refreshHistory()}
+async function toHist(){const d=collect();const id=(d.id||'').trim();if(!id){st('Escribe el ID del equipo para guardarlo en el historial.');F.elements.id.focus();return}
+ if(!curSid)curSid='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+ const ex=H.find(x=>x.sid===curSid);
+ const rec={sid:curSid,savedAt:new Date().toISOString(),by:(ex&&ex.by)||ME||null,lastBy:ME||null,data:d,anulada:!!(ex&&ex.anulada)};
+ if(ex&&ex.anulada){rec.motivo=ex.motivo||'';rec.anuladaPor=ex.anuladaPor||null}
+ try{await persist(rec)}catch(e){st(e&&e.code==='invalid_argument'?'No se pudo guardar: tu permiso es de solo lectura. Pide permiso de colaborador.':e&&e.code==='local'?'No se pudo guardar en este dispositivo.':'No se pudo guardar. Revisa la conexión e inténtalo de nuevo.');return}
+ st(/^EJEMPLO/i.test(id)?'Guardada como ejemplo: anúlala desde el historial cuando termines de probar.':shared?'Intervención de '+id+' guardada en el historial compartido.':'Intervención de '+id+' guardada solo en este dispositivo.');
+ save();updBtn()}
+async function setAnulada(sid,on,motivo){const r=H.find(x=>x.sid===sid);if(!r)return;
+ const rec={...r,anulada:on};if(on){rec.motivo=motivo;rec.anuladaPor=ME||null;rec.anuladaEn=new Date().toISOString()}else{delete rec.motivo;delete rec.anuladaPor;delete rec.anuladaEn}
+ await persist(rec)}
+function latest(id){const k=(id||'').trim().toLowerCase();return H.filter(r=>!r.anulada&&idKey(r)===k).sort((a,b)=>recDate(b).localeCompare(recDate(a)))[0]}
+const EQF=['id','marca','modelo','serie','inv','user','area','ubi','sector','teq'];
+function equipoDe(r){const o={};EQF.forEach(k=>o[k]=r.data[k]||'');o.fud=recDate(r);o.eeq=r.data.eeq||'';return o}
+$('#bl').onclick=()=>{const id=F.elements.id.value;const r=latest(id);
+ if(!id.trim()){$('#lh').textContent='Escribe primero el ID.';return}
+ if(!r){$('#lh').textContent='No hay intervenciones guardadas con el ID «'+id.trim()+'». Es un equipo nuevo.';return}
+ const o=equipoDe(r);EQF.forEach(k=>setField(k,o[k]));setField('fud',o.fud);setField('eeq',o.eeq);if(!F.elements.fda.value)setField('fda',today());
+ $('#lh').textContent='Datos cargados. Último diagnóstico registrado: '+o.fud+'.';refresh();save()};
+function nuevaInterv(id){const r=latest(id);if(!r)return;const d=equipoDe(r);d.fda=today();curSid=null;fill(d);updBtn();save();$('#s1').scrollIntoView({behavior:'smooth'});st('Nueva intervención para '+d.id+'. El último diagnóstico se tomó del historial.')}
+function abrir(sid){const r=H.find(x=>x.sid===sid);if(!r)return;curSid=sid;fill(r.data);updBtn();save();$('#s1').scrollIntoView({behavior:'smooth'});st('Intervención cargada. Los cambios se guardan al pulsar «Actualizar en historial».')}
+const finPill=f=>{if(!f)return'<span class="pill">Sin estado</span>';const k=f.split(':')[0];const c=k==='OPERATIVO'?'ok':k==='FUERA DE SERVICIO'||k==='BAJA RECOMENDADA'?'bd':'wr';return`<span class="pill ${c}">${esc(k.charAt(0)+k.slice(1).toLowerCase())}</span>`};
+let hrt=0;
+function renderHist(){
+ const ae=document.activeElement;if(ae&&ae.classList&&ae.classList.contains('mot')){clearTimeout(hrt);hrt=setTimeout(renderHist,1500);return}
+ const q=($('#hq').value||'').trim().toLowerCase();
+ const openSet=new Set([...document.querySelectorAll('details.eq[open]')].map(x=>x.dataset.eq));
+ $('#lan').hidden=!CANEDIT;
+ const ss=[...new Set(H.map(r=>(r.data.sector||'').trim()).filter(Boolean))].sort();$('#sectores').innerHTML=ss.map(s=>`<option value="${esc(s)}">`).join('');
+ const L=H.filter(r=>SHAN||!r.anulada);
+ const g={};L.forEach(r=>{(g[idKey(r)]=g[idKey(r)]||[]).push(r)});
+ const eqs=Object.values(g).map(a=>a.sort((x,y)=>recDate(y).localeCompare(recDate(x)))).sort((a,b)=>recDate(b[0]).localeCompare(recDate(a[0])));
+ const t0=today();let inv=0,old=0,neq=0;
+ eqs.forEach(a=>{const ok=a.filter(r=>!r.anulada);if(!ok.length)return;neq++;ok.forEach(r=>inv+=totals(r.data).total);const d0=recDate(ok[0]);if(d0&&days(d0,t0)>DIAS)old++});
+ const nint=H.filter(r=>!r.anulada).length;
+ $('#kpi').innerHTML=[[neq,'equipos registrados'],[nint,'intervenciones'],[old,'sin diagnóstico hace más de '+DIAS+' días'],[fmt(inv),'invertido en mantenimiento']].map(k=>`<div><b>${k[0]}</b><span>${k[1]}</span></div>`).join('');
+ const vis=eqs.filter(a=>!q||a.some(r=>[r.data.id,r.data.marca,r.data.modelo,r.data.user,r.data.sector].join(' ').toLowerCase().includes(q)));
+ if(!L.length){$('#hl').innerHTML='<p class="hint" style="margin-top:12px">Aún no hay equipos. Diligencia una ficha, escribe su ID y pulsa «Guardar en historial». Para ver cómo queda, carga la ficha de ejemplo.</p>';return}
+ if(!vis.length){$('#hl').innerHTML='<p class="hint" style="margin-top:12px">Ningún equipo coincide con la búsqueda.</p>';return}
+ $('#hl').innerHTML=vis.map(a=>{const ok=a.filter(r=>!r.anulada),l=ok[0]||a[0],d=l.data,dt=recDate(l),n=dt?days(dt,t0):null,tot=ok.reduce((s,r)=>s+totals(r.data).total,0),k=idKey(l);
+  return`<details class="eq" data-eq="${esc(k)}"${openSet.has(k)?' open':''}><summary><b>${esc(d.id)}</b><span>${esc([d.marca,d.modelo].filter(Boolean).join(' ')||'Sin marca ni modelo')}${d.sector?`<br><span class="hint">Sector: ${esc(d.sector)}</span>`:''}</span><span class="hint">${dt?esc(dt)+' · hace '+n+' d':'Sin fecha'}${n!=null&&n>DIAS&&ok.length?' <span class="pill bd">Vencido</span>':''}</span>${finPill(d.fin)}<span class="t">${fmt(tot)}</span></summary><div class="eqb">${a.map(r=>{const x=r.data,ty=TK.map((k,i)=>x['tr'+i]?tcorto[i]:'').filter(Boolean),ty2=ty.length?ty:TK.map((k,i)=>x['tm'+i]?tcorto[i]+' (previsto)':'').filter(Boolean);
+   return`<div class="iv"><span>${esc(recDate(r)||'s/f')}</span><span>${esc(ty2.join(', ')||'Sin tipo')} · ${r.anulada?'<span class="pill bd">Anulada</span>':finPill(x.fin)} <span class="hint" data-by="${esc(r.by||'')}"></span>${r.anulada&&r.motivo?`<br><span class="hint">Motivo: ${esc(r.motivo)}</span>`:''}</span><span class="t">${r.anulada?'—':fmt(totals(x).total)}</span><span class="bt"><button type="button" class="s sm" data-open="${esc(r.sid)}">Abrir</button>${r.anulada?(CANEDIT?`<button type="button" class="s sm" data-res="${esc(r.sid)}">Restaurar</button>`:''):`<button type="button" class="s sm dg" data-anu="${esc(r.sid)}">Anular</button>`}</span></div>`}).join('')}${ok.length?`<div class="row"><button type="button" class="sm" data-new="${esc(d.id)}">Nueva intervención de este equipo</button></div>`:''}</div></details>`}).join('');
+ fillNames()}
+async function fillNames(){document.querySelectorAll('[data-by]').forEach(e=>{e.textContent=e.dataset.by?'· usuario autorizado':''})}
+document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.open)abrir(b.dataset.open);
+ else if(b.dataset.new)nuevaInterv(b.dataset.new);
+ else if(b.dataset.anu){const bt=b.parentElement;bt.innerHTML=`<input class="mot" placeholder="Motivo de la anulación" aria-label="Motivo de la anulación"><button type="button" class="s sm dg" data-anuok="${b.dataset.anu}">Confirmar</button>`;bt.querySelector('input').focus()}
+ else if(b.dataset.anuok){const m=b.parentElement.querySelector('input').value.trim();if(!m){st('Escribe el motivo de la anulación.');return}
+  try{await setAnulada(b.dataset.anuok,true,m);st('Intervención anulada. Sigue visible para los editores.')}catch(x){st('No se pudo anular.')}}
+ else if(b.dataset.res){try{await setAnulada(b.dataset.res,false);st('Intervención restaurada.')}catch(x){st('No se pudo restaurar.')}}});
+$('#shan').onchange=e=>{SHAN=e.target.checked;renderHist()};
+$('#hq').addEventListener('input',renderHist);
+$('#bbk').onclick=async()=>{const t=JSON.stringify(H);const e=$('#bk');e.value=t;e.select();try{await navigator.clipboard.writeText(t);st('Respaldo copiado.')}catch(x){st('Respaldo mostrado y seleccionado: cópialo con Ctrl+C.')}};
+$('#brs').onclick=async()=>{try{const x=JSON.parse($('#bk').value);if(!Array.isArray(x)||!x.every(r=>r&&r.sid&&r.data))throw 0;
+ for(const r of x)await persist(r);st('Historial restaurado: '+x.length+' intervenciones.')}catch(e){st('El texto no es un respaldo válido o no tienes permiso para guardar.')}};
+
+/* ---------- ejemplo, borrador y botones ---------- */
+function ejemplo(){const t=today(),o={id:'EJEMPLO-PC-015',marca:'Marca de ejemplo',modelo:'Modelo de ejemplo',teq:'Desktop',eeq:'En reparación',tec:'Técnico de ejemplo',fud:addDays(t,-200),fda:t,
+ tiene:'Temperatura elevada del procesador.\nAcumulación de polvo en el disipador.\nDisco SSD con espacio disponible reducido.\nInicio del sistema operativo lento.',falta:'Limpieza interna, optimización del inicio de Windows y liberación de espacio autorizada.',
+ cl4:true,cl5:true,cl6:true,pri:PRI[2],op:OP[1],tm0:true,tr0:true,just:'Equipo con polvo y temperatura alta, sin fallas de componentes.',acts:'Limpieza interna y externa, limpieza de ventiladores, optimización del inicio, liberación de espacio autorizada y comprobación de temperaturas.',
+ a0d:'Pasta térmica',a0q:'1',a0u:'20000',b1h:'1',b1u:'80000',b5h:'1',b5u:'40000',apr:'Aprobado',aut:'Sí',tie:'2 horas',gs:'30 días',
+ fi:t,hi:'08:00',hf:'10:00',tex:'Técnico de ejemplo',aej:'Limpieza interna y externa; limpieza de ventiladores; optimización del inicio; liberación de espacio autorizada.',proc:'Se desconectó el equipo con protección ESD, se limpió el disipador y los ventiladores, se optimizó el inicio de Windows y se liberó espacio con autorización del usuario.',
+ m0a:'62',m0d:'41',m1a:'92',m1d:'71',m6a:'9',m6d:'24',m11a:'95',m11d:'48',ev0:true,ev1:true,ev2:true,sol:SOL[0],fin:FIN[0],
+ pend:'Programar seguimiento del almacenamiento.\nRevisar nuevamente las temperaturas en el próximo mantenimiento.\nMantener copias de seguridad.',fpm:addDays(t,180),obsf:'DATOS DE EJEMPLO. Pulsa «Nueva ficha» para empezar una real.',f1n:'Técnico de ejemplo'};
+ hw.forEach((r,i)=>o['h'+i]=r[1]?'N/A':'Bueno');o.h6='Regular';o.h6o='Ventilador con polvo';o.h7='Regular';o.h7o='Disipador obstruido';o.h8='N/A';o.h13='N/A';
+ sw.forEach((r,i)=>o['s'+i]=r[1].split('|')[0]);o.s1='Correcta';o.s6='Lento';o.s9='Bajo';o.s9o='SSD con poco espacio libre';
+ ts.forEach((r,i)=>o['p'+i]=i===3?'Normal':'Aprobado');return o}
+$('#bex').onclick=()=>{curSid=null;fill(ejemplo());updBtn();save();$('#s1').scrollIntoView({behavior:'smooth'});st('Ficha de ejemplo cargada. Revisa las secciones 4, 5, 8 y 11.')};
+function save(m){if(!ME)return;try{localStorage.setItem(draftKey(),JSON.stringify({d:collect(),sid:curSid}));if(m)st(m)}catch(e){if(m)st('No se pudo guardar el borrador en este dispositivo.')}}
+$('#bcp').onclick=async()=>{const r=report(collect());const e=$('#cp');try{await navigator.clipboard.writeText(r.text);st('Informe copiado al portapapeles.')}catch(x){e.hidden=false;e.value=r.text;e.select();st('Copia bloqueada: el informe quedó seleccionado en la sección 11, cópialo con Ctrl+C.')}};
+$('#bh').onclick=toHist;
+$('#bs').onclick=()=>save('Borrador guardado.');
+let cf=0;$('#bc').onclick=function(){if(!cf){cf=1;this.textContent='¿Borrar la ficha? Pulsa otra vez';setTimeout(()=>{cf=0;this.textContent='Nueva ficha'},4000);return}
+ cf=0;this.textContent='Nueva ficha';F.reset();curSid=null;fill({});updBtn();try{localStorage.removeItem(draftKey())}catch(e){}st('Ficha nueva en blanco. El historial no se modificó.')};
+F.addEventListener('input',()=>{refresh();save()});F.addEventListener('change',()=>{refresh();save()});
+function restoreDraft(){try{const r=localStorage.getItem(draftKey());if(r){const x=JSON.parse(r);curSid=x.sid||null;fill(x.d||{});st('Se restauró tu último borrador.')}}catch(e){st('No se pudo restaurar el borrador local.')}}
+function setMode(on,msg){shared=on;const m=$('#mode');m.textContent=on?'Compartido en vivo':'Solo este dispositivo';m.className='pill '+(on?'ok':'wr');
+ $('#hnote').textContent=RO&&on?'Tu cuenta solo puede consultar.':on?'El historial está disponible para usuarios autorizados.':(msg||'Inicia sesión para conectar con el historial compartido.')}
+async function refreshHistory(){
+ if(!sb||!ME)return;
+ const {data,error}=await sb.from('mt001_intervenciones').select('sid,data,saved_at,created_by,last_by,anulada,motivo,anulada_por,anulada_en').order('saved_at',{ascending:false});
+ if(error){setMode(false,'No se pudo cargar el historial de Supabase.');st('Error al cargar historial: '+error.message);throw error}
+ H=(data||[]).filter(x=>x&&x.sid&&x.data).map(x=>({sid:x.sid,data:x.data,savedAt:x.saved_at,by:x.created_by,lastBy:x.last_by,anulada:x.anulada,motivo:x.motivo,anuladaPor:x.anulada_por,anuladaEn:x.anulada_en}));
+ setMode(true);renderHist();updBtn()
+}
+async function activateSession(session){
+ if(!session||!session.user)return;
+ const {data:access,error:accessError}=await sb.from('mt001_usuarios_permitidos').select('user_id').eq('user_id',session.user.id).maybeSingle();
+ if(accessError){authStatus('No se pudo verificar el permiso de esta cuenta: '+accessError.message);return}
+ if(!access){authStatus('Esta cuenta todavía no está autorizada para consultar el historial. Contacta al administrador.');const {error}=await sb.auth.signOut();if(error)authStatus('Cuenta no autorizada y no se pudo cerrar la sesión: '+error.message);return}
+ ME=session.user.id;CANEDIT=true;RO=false;$('#auth').hidden=true;F.hidden=false;
+ restoreDraft();
+ try{await refreshHistory()}catch(e){}
+ checkLegacyHistory();
+ if(liveChannel)await sb.removeChannel(liveChannel);
+ liveChannel=sb.channel('mt001_intervenciones-live').on('postgres_changes',{event:'*',schema:'public',table:'mt001_intervenciones'},()=>refreshHistory().catch(()=>{})).subscribe(status=>{
+  if(status==='SUBSCRIBED'){setMode(true);authStatus('Sesión iniciada. Historial conectado.')}
+  else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){setMode(false,'No se pudo mantener la actualización en vivo.');authStatus('Sesión iniciada; revisa la conexión al historial.')}
+ });
+ renderHist()
+}
+async function deactivateSession(){
+ if(liveChannel){await sb.removeChannel(liveChannel);liveChannel=null}
+ ME=null;CANEDIT=false;shared=false;H=[];curSid=null;F.hidden=true;$('#auth').hidden=false;F.reset();fill({});setMode(false);renderHist();authStatus('Inicia sesión con una cuenta autorizada.')
+}
+function authStatus(message){$('#authmsg').textContent=message}
+const migrateButton=document.createElement('button');
+migrateButton.type='button';migrateButton.className='s sm';migrateButton.hidden=true;
+migrateButton.textContent='Importar historial local';
+$('#hist .row').append(migrateButton);
+function checkLegacyHistory(){
+ try{const items=JSON.parse(localStorage.getItem(HK)||'[]');migrateButton.hidden=!Array.isArray(items)||!items.length;migrateButton.textContent='Importar historial local ('+(Array.isArray(items)?items.length:0)+')'}
+ catch(e){migrateButton.hidden=true;st('No se pudo revisar el historial local anterior.')}
+}
+migrateButton.onclick=async()=>{
+ try{
+  const items=JSON.parse(localStorage.getItem(HK)||'[]');
+  if(!Array.isArray(items)||!items.every(r=>r&&r.sid&&r.data&&typeof r.data==='object'))throw new Error('El historial local no tiene un formato válido.');
+  if(!items.length){migrateButton.hidden=true;return}
+  if(!confirm('Se copiarán '+items.length+' intervenciones antiguas a Supabase. Los registros existentes no se sobrescribirán. ¿Continuar?'))return;
+  const {data:existing,error:readError}=await sb.from('mt001_intervenciones').select('sid');
+  if(readError)throw readError;
+  const ids=new Set((existing||[]).map(r=>r.sid));
+  const missing=items.filter(r=>!ids.has(r.sid));
+  if(missing.length){
+   const rows=missing.map(r=>({sid:r.sid,data:r.data,saved_at:r.savedAt||new Date().toISOString(),created_by:ME,last_by:ME,anulada:!!r.anulada,motivo:r.motivo||null,anulada_por:r.anulada?ME:null,anulada_en:r.anuladaEn||null}));
+   const {error}=await sb.from('mt001_intervenciones').upsert(rows,{onConflict:'sid'});
+   if(error)throw error;
+  }
+  await refreshHistory();localStorage.removeItem(HK);migrateButton.hidden=true;
+  st('Historial antiguo importado: '+missing.length+' nuevas; '+(items.length-missing.length)+' ya existían.')
+ }catch(e){st('No se pudo importar el historial local: '+(e.message||'error desconocido'))}
+};
+async function initDB(){
+ if(!window.supabase||!window.supabase.createClient){authStatus('No se pudo cargar la biblioteca de Supabase. Verifica tu conexión a internet.');return}
+ if(SUPABASE_URL.includes('PEGA_AQUI')||SUPABASE_ANON_KEY.includes('PEGA_AQUI')){authStatus('Configura la URL y la clave pública de Supabase en el archivo HTML antes de publicarlo.');return}
+ try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}catch(e){authStatus('La configuración de Supabase no es válida: '+e.message);return}
+ $('#authLogin').onclick=async()=>{const email=$('#authEmail').value.trim(),password=$('#authPassword').value;if(!email||!password){authStatus('Escribe tu correo y contraseña.');return}
+  const b=$('#authLogin');b.disabled=true;authStatus('Iniciando sesión…');
+  try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)authStatus('No se pudo iniciar sesión: '+error.message);else if(data.session)await activateSession(data.session)}
+  catch(e){authStatus('Error de conexión con Supabase: '+e.message)}finally{b.disabled=false}};
+ $('#authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('#authLogin').click()});
+ $('#authLogout').onclick=async()=>{save();try{const {error}=await sb.auth.signOut();if(error)st('No se pudo cerrar sesión: '+error.message);else await deactivateSession()}catch(e){st('Error al cerrar sesión: '+e.message)}};
+ try{const {data,error}=await sb.auth.getSession();if(error)throw error;if(data.session)await activateSession(data.session);else await deactivateSession()}
+ catch(e){authStatus('No se pudo verificar la sesión: '+e.message)}
+}
+updBtn();renderHist();refresh();initDB();
+</script>
+
+</body></html>
