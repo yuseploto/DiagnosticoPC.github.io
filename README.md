@@ -1,0 +1,1 @@
+# DiagnosticoPC.github.io
